@@ -1,4 +1,24 @@
 services:
+  - type: pserv
+    name: mvc-api-mysql
+    env: docker
+    plan: starter
+    dockerfilePath: ./mysql/Dockerfile
+    autoDeploy: true
+    disk:
+      name: mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 1
+    envVars:
+      - key: MYSQL_DATABASE
+        value: mvc_api
+      - key: MYSQL_USER
+        value: mvc_user
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MYSQL_ROOT_PASSWORD
+        sync: false
+
   - type: web
     name: mvc-api
     env: docker
@@ -16,8 +36,14 @@ services:
       - key: API_VERSION
         value: v1
       - key: DB_DRIVER
-        value: pgsql
-      - key: DATABASE_URL
+        value: mysql
+      - key: DB_HOST
+        value: mvc-api-mysql
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_NAME
+        value: mvc_api
+      - key: DB_USER
+        value: mvc_user
+      - key: DB_PASS
         sync: false
-      - key: DB_SSLMODE
-        value: prefer
