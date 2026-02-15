@@ -22,7 +22,7 @@ final class Database
             throw new RuntimeException('Only mysql DB_DRIVER is supported in this starter.');
         }
 
-        $host = getenv('DB_HOST') ?: '127.0.0.1';
+        $host = getenv('DB_HOST') ?: 'postgresql://admin2431:FlSQLoqloA98vMYYTrZtaTeiuHnCFXTp@dpg-d68j3pjh46gs73fg0bfg-a/restapi_o3v2';
         $port = (int) (getenv('DB_PORT') ?: '3306');
         $name = getenv('DB_NAME') ?: '';
         $user = getenv('DB_USER') ?: '';
