@@ -15,18 +15,22 @@ A lightweight REST API starter in vanilla PHP using a Controller/Model pattern.
 ## Requirements
 
 - PHP 8.1+
-- MySQL 8+
-- PHP `mysqli` extension
-- `mysqlnd` enabled (used by `mysqli_stmt::get_result`)
+- PostgreSQL 14+
+- PHP `pdo_pgsql` extension
 
 ## Setup
 
 1. Copy `.env.example` to `.env`.
-2. Update `.env` with your database credentials.
-3. Create DB/table:
+2. Set PostgreSQL connection string in `.env`:
 
 ```bash
-mysql -u root -p < database/schema.sql
+DATABASE_URL=postgresql://user:password@localhost:5432/mvc_api
+```
+
+3. Create table schema:
+
+```bash
+psql "$DATABASE_URL" -f database/schema.sql
 ```
 
 4. Run local server from project root:
@@ -54,16 +58,13 @@ Steps:
 1. Push this repo to GitHub/GitLab.
 2. In Render, create a new service using Blueprint and select this repo.
 3. Set secret env vars in Render for:
-   - `DB_HOST`
-   - `DB_NAME`
-   - `DB_USER`
-   - `DB_PASS`
-4. Make sure your MySQL server allows connections from Render.
+   - `DATABASE_URL`
+4. Optional: set `DB_SSLMODE` (`prefer`, `require`, or `disable`) if needed.
 5. Deploy and test `https://<your-service>.onrender.com/v1/health`.
 
 Notes:
 
-- Render does not provide managed MySQL directly; use an external MySQL provider.
+- App expects `DB_DRIVER=pgsql`.
 - Do not commit real credentials in `.env`.
 
 ## Notes

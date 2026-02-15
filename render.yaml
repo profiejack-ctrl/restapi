@@ -16,14 +16,8 @@ services:
       - key: API_VERSION
         value: v1
       - key: DB_DRIVER
-        value: mysql
-      - key: DB_HOST
+        value: pgsql
+      - key: DATABASE_URL
         sync: false
-      - key: DB_PORT
-        value: "3306"
-      - key: DB_NAME
-        sync: false
-      - key: DB_USER
-        sync: false
-      - key: DB_PASS
-        sync: false
+      - key: DB_SSLMODE
+        value: prefer

@@ -4,34 +4,63 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use mysqli;
+use PDO;
+use PDOException;
 use RuntimeException;
 
 final class Database
 {
-    private static ?mysqli $connection = null;
+    private static ?PDO $connection = null;
 
-    public static function connection(): mysqli
+    public static function connection(): PDO
     {
-        if (self::$connection instanceof mysqli) {
+        if (self::$connection instanceof PDO) {
             return self::$connection;
         }
 
-        $driver = getenv('DB_DRIVER') ?: 'mysql';
-        if ($driver !== 'mysql') {
-            throw new RuntimeException('Only mysql DB_DRIVER is supported in this starter.');
+        $driver = getenv('DB_DRIVER') ?: 'pgsql';
+        if ($driver !== 'pgsql') {
+            throw new RuntimeException('Only pgsql DB_DRIVER is supported for this Render setup.');
         }
 
-        $host = getenv('DB_HOST') ?: 'postgresql://admin2431:FlSQLoqloA98vMYYTrZtaTeiuHnCFXTp@dpg-d68j3pjh46gs73fg0bfg-a/restapi_o3v2';
-        $port = (int) (getenv('DB_PORT') ?: '3306');
-        $name = getenv('DB_NAME') ?: '';
-        $user = getenv('DB_USER') ?: '';
-        $pass = getenv('DB_PASS') ?: '';
+        $databaseUrl = getenv('DATABASE_URL') ?: '';
+        if ($databaseUrl === '') {
+            throw new RuntimeException('DATABASE_URL is required.');
+        }
 
-        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+        $parts = parse_url($databaseUrl);
+        if ($parts === false || !isset($parts['host'], $parts['path'])) {
+            throw new RuntimeException('Invalid DATABASE_URL format.');
+        }
 
-        self::$connection = new mysqli($host, $user, $pass, $name, $port);
-        self::$connection->set_charset('utf8mb4');
+        $host = (string) $parts['host'];
+        $port = isset($parts['port']) ? (int) $parts['port'] : 5432;
+        $dbName = ltrim((string) $parts['path'], '/');
+        $user = isset($parts['user']) ? urldecode((string) $parts['user']) : '';
+        $pass = isset($parts['pass']) ? urldecode((string) $parts['pass']) : '';
+        $urlSslMode = null;
+        if (isset($parts['query'])) {
+            parse_str((string) $parts['query'], $queryParts);
+            $urlSslMode = isset($queryParts['sslmode']) ? (string) $queryParts['sslmode'] : null;
+        }
+        $sslMode = $urlSslMode ?: (getenv('DB_SSLMODE') ?: 'prefer');
+
+        $dsn = sprintf(
+            'pgsql:host=%s;port=%d;dbname=%s;sslmode=%s',
+            $host,
+            $port,
+            $dbName,
+            $sslMode
+        );
+
+        try {
+            self::$connection = new PDO($dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]);
+        } catch (PDOException $e) {
+            throw new RuntimeException('Database connection failed: ' . $e->getMessage(), 0, $e);
+        }
 
         return self::$connection;
     }

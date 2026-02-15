@@ -2,8 +2,8 @@ FROM php:8.2-cli-alpine
 
 WORKDIR /app
 
-# Install mysqli for MySQL connectivity
-RUN docker-php-ext-install mysqli
+# Install PostgreSQL PDO extension
+RUN docker-php-ext-install pdo_pgsql
 
 # Copy app files
 COPY . /app
