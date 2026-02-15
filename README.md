@@ -41,6 +41,31 @@ php -S localhost:8000 -t public
 curl http://localhost:8000/v1/health
 ```
 
+## Deploy To Render (Docker)
+
+This repo includes:
+
+- `Dockerfile` (Render-compatible, listens on `$PORT`)
+- `.dockerignore`
+- `render.yaml` (Blueprint for one web service)
+
+Steps:
+
+1. Push this repo to GitHub/GitLab.
+2. In Render, create a new service using Blueprint and select this repo.
+3. Set secret env vars in Render for:
+   - `DB_HOST`
+   - `DB_NAME`
+   - `DB_USER`
+   - `DB_PASS`
+4. Make sure your MySQL server allows connections from Render.
+5. Deploy and test `https://<your-service>.onrender.com/v1/health`.
+
+Notes:
+
+- Render does not provide managed MySQL directly; use an external MySQL provider.
+- Do not commit real credentials in `.env`.
+
 ## Notes
 
 - API version prefix comes from `API_VERSION` in `.env`.
